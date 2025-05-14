@@ -1,13 +1,53 @@
-name: Hello World Workflow
+name: Build and Package Angular app v2
 
 on:
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Select the branch to run the workflow on'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - 'main'
+          - 'develop'
+
+      run_optional_jobs:
+        description: 'Do you want to run the Optional Jobs?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'    
 
 jobs:
-  say-hello:
-    name: Say Hello
+  run-on-main:
+    if: ${{ github.event.inputs.branch == 'main' && github.event.inputs.run_optional_jobs == 'false'}}
     runs-on: ubuntu-latest
-
     steps:
-      - name: Print Hello World
-        run: echo "Hello, world!"
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+          
+      - name: Verify code on main branch
+        run: echo "This job runs only on the 'main' branch and the code has been checked out."    
+          
+      - name: Run on main
+        run: echo "This job runs only on the 'main' branch."
+
+  run-on-develop:
+    if: ${{ github.event.inputs.branch == 'develop' && github.event.inputs.run_optional_jobs == 'false'}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Verify code on develop branch
+        run: echo "This job runs only on the 'develop' branch and the code has been checked out."    
+          
+      - name: Run on develop
+        run: echo "This job runs only on the 'develop' branch."
